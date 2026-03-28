@@ -3,6 +3,7 @@
 This project is an interactive web application that allows users to upload multiple PDF documents and ask questions about their content using a large language model (LLM).
 
 ---
+<img width="1919" height="912" alt="Screenshot 2026-03-28 213329" src="https://github.com/user-attachments/assets/0ac98331-a3a6-442e-b0e9-4bbbd73be1b5" />
 
 ## Features
 
