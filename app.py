@@ -1,18 +1,41 @@
 import streamlit as st
+import os
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
-from langchain_community.llms import Ollama
+#from langchain_ollama import OllamaLLM as Ollama
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 from htmlTemplates import css, bot_template, user_template
 
+os.environ["GOOGLE_API_KEY"] = "AIzaSyAYMwCGVldoNnZ_p_REZV8Q6BmkDs1c824"
 
+st.markdown("""
+    <style>
+    .chat-message.user{
+        background:#E8E3DB;
+        color:#111;
+    }
+
+    .chat-message.bot{
+        background:#F5F1EA;
+        color:#111;
+    }
+
+    .chat-message{
+        border-radius:20px;
+        padding:18px;
+        margin-bottom:14px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 def get_pdf_text(pdf_docs):
     text = ""
     for pdf in pdf_docs:
@@ -46,9 +69,13 @@ def get_vectorstore(text_chunks):
 
 
 def get_conversation_chain(vectorstore):
-    llm = Ollama(
-    model = "llama3"
-    )
+    #llm = Ollama(
+    #model = "llama3"
+    #)
+    llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",
+    temperature=0
+)
 
     memory = ConversationBufferMemory(
         memory_key="chat_history",
@@ -84,6 +111,7 @@ def main():
     st.set_page_config(page_title="Chat with PDFs", page_icon="📚")
 
     st.write(css, unsafe_allow_html=True)
+    
 
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
@@ -91,7 +119,8 @@ def main():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    st.header("Chat with multiple PDFs 📚")
+    st.header("Chat with PDFs")
+    st.markdown("*Upload and chat with your PDF documents*")
 
     user_question = st.text_input("Ask a question about your documents:")
 
