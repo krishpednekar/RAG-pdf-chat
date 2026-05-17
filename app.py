@@ -15,9 +15,9 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 
 from htmlTemplates import css, bot_template, user_template
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyAYMwCGVldoNnZ_p_REZV8Q6BmkDs1c824"
-
 st.set_page_config(page_title="Chat with PDFs", page_icon="📚")
+
+from htmlTemplates import css, bot_template, user_template
 
 st.markdown("""
     <style>
