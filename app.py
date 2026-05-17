@@ -17,6 +17,8 @@ from htmlTemplates import css, bot_template, user_template
 
 os.environ["GOOGLE_API_KEY"] = "AIzaSyAYMwCGVldoNnZ_p_REZV8Q6BmkDs1c824"
 
+st.set_page_config(page_title="Chat with PDFs", page_icon="📚")
+
 st.markdown("""
     <style>
     .chat-message.user{
@@ -108,7 +110,6 @@ def handle_userinput(user_question):
 
 def main():
     load_dotenv()
-    st.set_page_config(page_title="Chat with PDFs", page_icon="📚")
 
     st.write(css, unsafe_allow_html=True)
     
