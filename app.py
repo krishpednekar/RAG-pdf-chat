@@ -13,8 +13,6 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
-from htmlTemplates import css, bot_template, user_template
-
 st.set_page_config(page_title="Chat with PDFs", page_icon="📚")
 
 from htmlTemplates import css, bot_template, user_template
@@ -76,7 +74,8 @@ def get_conversation_chain(vectorstore):
     #)
     llm = ChatGoogleGenerativeAI(
     model="gemini-1.5-flash",
-    temperature=0
+    temperature=0,
+    google_api_key = os.getenv("GOOGLE_API_KEY")
 )
 
     memory = ConversationBufferMemory(
