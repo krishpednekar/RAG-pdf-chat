@@ -167,13 +167,23 @@ def main():
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
 
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
+    if "user_question" not in st.session_state:
+      st.session_state.user_question = ""
+
     # Header
     st.header("Chat with PDFs 📚")
     st.markdown("*Upload and chat with your PDF documents*")
 
     # User question
+    if "user_question" not in st.session_state:
+        st.session_state.user_question = ""
+
     user_question = st.text_input(
-        "Ask a question about your documents:"
+    "Ask a question about your documents:",
+    key="user_question"
     )
 
     if user_question:
