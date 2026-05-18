@@ -100,8 +100,8 @@ def get_vectorstore(text_chunks):
     )
 
     vectorstore = Chroma.from_texts(
-    texts=text_chunks,
-    embedding=embeddings
+        texts=text_chunks,
+        embedding=embeddings
     )
 
     return vectorstore
