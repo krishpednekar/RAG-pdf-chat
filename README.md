@@ -1,3 +1,24 @@
+---
+title: RAG PDF Chatbot
+emoji: 📚
+colorFrom: blue
+colorTo: purple
+sdk: streamlit
+sdk_version: "1.45.1"
+python_version: "3.11"
+app_file: app.py
+pinned: false
+---
+
+# RAG PDF Chatbot
+
+Upload PDFs and chat with them using:
+- Streamlit
+- LangChain
+- FAISS
+- HuggingFace Embeddings
+- Groq LLM
+
 # Chat with Multiple PDFs using Retrieval-Augmented Generation (RAG)
 
 https://rag-pdf-chat-cg2a.onrender.com/
