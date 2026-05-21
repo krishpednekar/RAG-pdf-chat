@@ -7,3 +7,6 @@ langchain-groq==0.3.2
 chromadb==1.0.10
 pypdf2==3.0.1
 python-dotenv==1.1.0
+sentence-transformers
+torch
+transformers

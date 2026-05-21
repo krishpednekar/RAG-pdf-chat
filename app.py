@@ -4,13 +4,13 @@ from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain.chains import ConversationalRetrievalChain
 
 import gc
 
 from langchain_groq import ChatGroq
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 from htmlTemplates import css, bot_template, user_template
 
@@ -91,12 +91,12 @@ def get_text_chunks(text):
 
 # ---------------- VECTOR STORE ---------------- #
 
-@st.cache_resource
+# FIX: Removed @st.cache_resource — it can't hash list arguments reliably,
+# and causes errors across re-runs. Vectorstore is stored in session_state instead.
 def get_vectorstore(text_chunks):
 
-    embeddings = GoogleGenerativeAIEmbeddings(
-        model="models/text-embedding-004",
-        google_api_key=os.getenv("GOOGLE_API_KEY")
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
 
     vectorstore = Chroma.from_texts(
@@ -104,8 +104,9 @@ def get_vectorstore(text_chunks):
         embedding=embeddings
     )
 
+    gc.collect()  # FIX: moved gc.collect() before return so it actually runs
+
     return vectorstore
-    gc.collect()
 
 
 # ---------------- CONVERSATION CHAIN ---------------- #
@@ -131,11 +132,16 @@ def get_conversation_chain(vectorstore):
 
 def handle_userinput(user_question):
 
+    # FIX: Pass chat_history so ConversationalRetrievalChain works correctly
     response = st.session_state.conversation.invoke({
-        "question": user_question
+        "question": user_question,
+        "chat_history": st.session_state.chat_history
     })
 
     answer = response["answer"]
+
+    # FIX: Append to chat history so multi-turn context is preserved
+    st.session_state.chat_history.append((user_question, answer))
 
     st.write(
         user_template.replace("{{MSG}}", user_question),
@@ -154,13 +160,10 @@ def main():
 
     load_dotenv()
 
-    # API key checks
-    if not os.getenv("GOOGLE_API_KEY"):
-        st.error("GOOGLE_API_KEY not found in .env file")
-        st.stop()
-
+    # FIX: Removed GOOGLE_API_KEY check — Google embeddings are not used anywhere.
+    # Only GROQ_API_KEY is actually needed.
     if not os.getenv("GROQ_API_KEY"):
-        st.error("GROQ_API_KEY not found in .env file")
+        st.error("GROQ_API_KEY not found in environment variables.")
         st.stop()
 
     # Session state
@@ -170,20 +173,15 @@ def main():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    if "user_question" not in st.session_state:
-      st.session_state.user_question = ""
+    # FIX: Removed duplicate initialization of user_question
 
     # Header
     st.header("Chat with PDFs 📚")
     st.markdown("*Upload and chat with your PDF documents*")
 
-    # User question
-    if "user_question" not in st.session_state:
-        st.session_state.user_question = ""
-
     user_question = st.text_input(
-    "Ask a question about your documents:",
-    key="user_question"
+        "Ask a question about your documents:",
+        key="user_question"
     )
 
     if user_question:
@@ -226,6 +224,9 @@ def main():
                 st.session_state.conversation = get_conversation_chain(
                     vectorstore
                 )
+
+                # FIX: Reset chat history when new PDFs are processed
+                st.session_state.chat_history = []
 
                 st.success("Processing complete!")
 
