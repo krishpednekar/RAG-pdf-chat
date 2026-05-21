@@ -4,11 +4,9 @@ from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain.chains import ConversationalRetrievalChain
-
-import gc
 
 from langchain_groq import ChatGroq
 
@@ -28,12 +26,12 @@ st.markdown("""
 <style>
 .chat-message.user{
     background:#E8E3DB;
-    color:#111;
+    color:#000000;
 }
 
 .chat-message.bot{
     background:#F5F1EA;
-    color:#111;
+    color:#000000;
 }
 
 .chat-message{
@@ -81,8 +79,8 @@ def get_pdf_text(pdf_docs):
 def get_text_chunks(text):
 
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=300,
-        chunk_overlap=30,
+        chunk_size=1000,
+        chunk_overlap=200,
         length_function=len
     )
 
@@ -99,12 +97,10 @@ def get_vectorstore(text_chunks):
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
 
-    vectorstore = Chroma.from_texts(
+    vectorstore = FAISS.from_texts(
         texts=text_chunks,
         embedding=embeddings
     )
-
-    gc.collect()  # FIX: moved gc.collect() before return so it actually runs
 
     return vectorstore
 
